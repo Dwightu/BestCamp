@@ -4,6 +4,8 @@ const mongoose = require('mongoose');
 const Campground = require('./models/campground');
 const ejsMate = require('ejs-mate');
 const methodOverride = require('method-override');
+const catchAsync = require('./utils/catchAsync')
+const ExpressError = require('./utils/ExpressError');
 
 mongoose.connect('mongodb://localhost:27017/yelp-camp', {
     useNewUrlParser: true,
@@ -29,20 +31,22 @@ app.get('/', (req, res) => {
 })
 
 //展示所有的东西
-app.get('/campgrounds', async (req, res) => {
+app.get('/campgrounds', catchAsync(async (req, res, next) => {
     const campgrounds = await Campground.find({});
     res.render('campground/index', { campgrounds })
-})
+}));
 
 //创建新东西
-app.get('/campgrounds/new', async (req, res) => {
+app.get('/campgrounds/new', catchAsync(async (req, res) => {
     res.render('campground/new');
-})
-app.post('/campgrounds', async (req, res) => {
+}))
+app.post('/campgrounds', catchAsync(async (req, res, next) => {
+    if (!req.body.campground) throw new ExpressError('Invalid Campground Data', 400);
     const newCampground = new Campground(req.body.campground);
     await newCampground.save();
     res.redirect(`/campgrounds/${newCampground.id}`);
-})
+
+}))
 
 
 //展示特定id的东西
@@ -70,6 +74,17 @@ app.delete('/campgrounds/:id', async (req, res) => {
     const { id } = req.params;
     await Campground.findByIdAndDelete(id);
     res.redirect('/campgrounds')
+})
+
+//所有找不到路由的界面
+app.all('*', (req, res, next) => {
+    next(new ExpressError('Page Not Found', 404));
+})
+
+app.use((err, req, res, next) => {
+    const { statusCode = 500 } = err;
+    if (!err.message) err.message = 'Oh No, Something Went Wrong!'
+    res.status(statusCode).render('error', { err })
 })
 
 app.listen(8000, () => {
