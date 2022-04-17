@@ -7,7 +7,8 @@ const methodOverride = require('method-override');
 const catchAsync = require('./utils/catchAsync')
 const ExpressError = require('./utils/ExpressError');
 const Joi = require('joi');
-const { campgroundSchema } = require('./schema');
+const { campgroundSchema, reviewSchema } = require('./schema');
+const Review = require('./models/review')
 
 
 mongoose.connect('mongodb://localhost:27017/yelp-camp', {
@@ -31,6 +32,15 @@ app.use(methodOverride('_method'));
 
 const validateCampground = (req, res, next) => {
     const { error } = campgroundSchema.validate(req.body);
+    if (error) {
+        const msg = error.details.map(el => el.message).join(',')
+        throw new ExpressError(msg, 400)
+    } else {
+        next();
+    }
+}
+const validateReview = (req, res, next) => {
+    const { error } = reviewSchema.validate(req.body);
     if (error) {
         const msg = error.details.map(el => el.message).join(',')
         throw new ExpressError(msg, 400)
@@ -65,7 +75,7 @@ app.post('/campgrounds', validateCampground, catchAsync(async (req, res, next) =
 //展示特定id的东西
 app.get('/campgrounds/:id', async (req, res) => {
     const id = req.params.id;
-    const campground = await Campground.findById(id);
+    const campground = await Campground.findById(id).populate('reviews');
     res.render('campground/show', { campground })
 });
 
@@ -88,6 +98,27 @@ app.delete('/campgrounds/:id', async (req, res) => {
     res.redirect('/campgrounds')
 })
 
+//POST /campgrounds/:id/reviews 提交一个review
+app.post('/campgrounds/:id/reviews', validateReview, catchAsync(async (req, res) => {
+    const campground = await Campground.findById(req.params.id);
+    const review = new Review(req.body.review);
+    campground.reviews.push(review);
+    await review.save();
+    await campground.save();
+    res.redirect(`/campgrounds/${req.params.id}`);
+}))
+
+//DELETE 删除某一个id的review
+app.delete('/campgrounds/:id/reviews/:reviewId', catchAsync(async (req, res) => {
+    const { id, reviewId } = req.params;
+    await Campground.findByIdAndUpdate(id, { $pull: { reviews: reviewId } });
+    await Review.findByIdAndDelete(reviewId);
+    res.redirect(`/campgrounds/${id}`);
+
+}))
+
+
+
 //所有找不到路由的界面
 app.all('*', (req, res, next) => {
     next(new ExpressError('Page Not Found', 404));
@@ -98,6 +129,10 @@ app.use((err, req, res, next) => {
     if (!err.message) err.message = 'Oh No, Something Went Wrong!'
     res.status(statusCode).render('error', { err })
 })
+
+
+
+
 
 app.listen(8000, () => {
     console.log('Serving on Port 8000');
