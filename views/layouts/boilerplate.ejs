@@ -14,7 +14,8 @@
 <body class="d-flex flex-column vh-100">
     <%- include('../partials/navbar') %>
         <main class="container mt-5">
-            <%- body %>
+            <%- include('../partials/flash') %>
+                <%- body %>
         </main>
         <!-- BootStrap JavaScript Bundle with Popper -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
