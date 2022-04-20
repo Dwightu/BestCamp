@@ -37,7 +37,7 @@ router.post('/', isLoggedIn, validateCampground, catchAsync(async (req, res, nex
 
 
 //展示特定id的东西
-router.get('/:id', isLoggedIn, async (req, res) => {
+router.get('/:id', async (req, res) => {
     const id = req.params.id;
     const campground = await Campground.findById(id).populate('reviews');
     if (!campground) {
