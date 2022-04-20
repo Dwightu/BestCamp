@@ -5,10 +5,10 @@ const catchAsync = require('../utils/catchAsync')
 const passport = require('passport');
 
 
+//用户注册
 router.get('/register', (req, res) => {
     res.render('users/register');
 })
-
 router.post('/register', catchAsync(async (req, res) => {
     try {
         const { email, username, password } = req.body;
@@ -24,14 +24,22 @@ router.post('/register', catchAsync(async (req, res) => {
 
 }))
 
+//用户登录
 router.get('/login', (req, res) => {
     res.render('users/login');
 })
-
 router.post('/login', passport.authenticate('local', { failureRedirect: '/login', failureFlash: true }), (req, res) => {
     req.flash('success', 'Welcome back!!')
     res.redirect('/campgrounds');
 });
+
+//用户登出
+router.get('/logout', (req, res) => {
+    req.logout();
+    req.flash('success', 'Goodbye!');
+    res.redirect('campgrounds');
+})
+
 
 
 module.exports = router;
