@@ -30,6 +30,7 @@ router.get('/new', isLoggedIn, catchAsync(async (req, res) => {
 router.post('/', isLoggedIn, validateCampground, catchAsync(async (req, res, next) => {
     // if (!req.body.campground) throw new ExpressError('Invalid Campground Data', 400);
     const campground = new Campground(req.body.campground);
+    campground.author = req.user._id;
     await campground.save();
     req.flash('success', 'Successfully made a new campground!');
     res.redirect(`/campgrounds/${campground._id}`)
@@ -39,7 +40,8 @@ router.post('/', isLoggedIn, validateCampground, catchAsync(async (req, res, nex
 //展示特定id的东西
 router.get('/:id', async (req, res) => {
     const id = req.params.id;
-    const campground = await Campground.findById(id).populate('reviews');
+    const campground = await (await Campground.findById(id).populate('reviews')).populate('author');
+    console.log(campground);
     if (!campground) {
         req.flash('error', 'Cannot find that campground');
         return res.redirect('/campgrounds')
