@@ -2,20 +2,15 @@ const express = require('express');
 const router = express.Router();
 const catchAsync = require('../utils/catchAsync');
 const { campgroundSchema } = require('../schema');
-const { isLoggedIn } = require('../middleware');
+const { isLoggedIn, validateCampground, isAuthor } = require('../middleware');
 
 const ExpressError = require('../utils/ExpressError');
 const Campground = require('../models/campground');
 
-const validateCampground = (req, res, next) => {
-    const { error } = campgroundSchema.validate(req.body);
-    if (error) {
-        const msg = error.details.map(el => el.message).join(',')
-        throw new ExpressError(msg, 400)
-    } else {
-        next();
-    }
-}
+
+
+
+
 
 //展示所有的东西
 router.get('/', catchAsync(async (req, res, next) => {
@@ -50,21 +45,29 @@ router.get('/:id', async (req, res) => {
 });
 
 //编辑东西
-router.get('/:id/edit', isLoggedIn, async (req, res) => {
-    const id = req.params.id;
+router.get('/:id/edit', isLoggedIn, isAuthor, async (req, res) => {
+    const { id } = req.params;
     const campground = await Campground.findById(id);
+    if (!campground) {
+        req.flash('error', 'Sorry Cannot find that campground');
+        return res.redirect(`/campgrounds/${id}`);
+    }
     res.render('campground/edit', { campground })
 });
-router.put('/:id', isLoggedIn, validateCampground, catchAsync(async (req, res) => {
-    const { id } = req.params;
-    const campground = await Campground.findByIdAndUpdate(id, { ...req.body.campground });
+router.put('/:id', isLoggedIn, validateCampground, isAuthor, catchAsync(async (req, res) => {
+    const camp = await Campground.findByIdAndUpdate(id, { ...req.body.campground });
     req.flash('success', 'Successfully updated campground!');
     res.redirect(`/campgrounds/${campground._id}`)
 }));
 
 //删除新东西
-router.delete('/:id', isLoggedIn, async (req, res) => {
+router.delete('/:id', isLoggedIn, isAuthor, async (req, res) => {
     const { id } = req.params;
+    const campground = await Campground.findById(id);
+    if (!campground.author.equals(req.user._id)) {
+        req.flash('error', "You don't have permission to do it.");
+        return res.redirect(`/campgrounds/${id}`)
+    }
     await Campground.findByIdAndDelete(id);
     req.flash('success', 'Successfully Deleted campground!')
     res.redirect('/campgrounds')
