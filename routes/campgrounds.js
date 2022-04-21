@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const catchAsync = require('../utils/catchAsync');
-const { campgroundSchema } = require('../schema');
 const { isLoggedIn, validateCampground, isAuthor } = require('../middleware');
 
 const ExpressError = require('../utils/ExpressError');
@@ -35,8 +34,15 @@ router.post('/', isLoggedIn, validateCampground, catchAsync(async (req, res, nex
 //展示特定id的东西
 router.get('/:id', async (req, res) => {
     const id = req.params.id;
-    const campground = await (await Campground.findById(id).populate('reviews')).populate('author');
-    console.log(campground);
+    const campground = await Campground.findById(id).populate(
+        {
+            path: 'reviews',
+            populate: {
+                path: 'author'
+            }
+        }
+    ).populate('author');
+    // console.log(campground);
     if (!campground) {
         req.flash('error', 'Cannot find that campground');
         return res.redirect('/campgrounds')
