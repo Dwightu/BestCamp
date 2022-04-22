@@ -61,7 +61,8 @@ router.get('/:id/edit', isLoggedIn, isAuthor, async (req, res) => {
     res.render('campground/edit', { campground })
 });
 router.put('/:id', isLoggedIn, validateCampground, isAuthor, catchAsync(async (req, res) => {
-    const camp = await Campground.findByIdAndUpdate(id, { ...req.body.campground });
+    const { id } = req.params;
+    const campground = await Campground.findByIdAndUpdate(id, { ...req.body.campground });
     req.flash('success', 'Successfully updated campground!');
     res.redirect(`/campgrounds/${campground._id}`)
 }));
@@ -69,14 +70,9 @@ router.put('/:id', isLoggedIn, validateCampground, isAuthor, catchAsync(async (r
 //删除新东西
 router.delete('/:id', isLoggedIn, isAuthor, async (req, res) => {
     const { id } = req.params;
-    const campground = await Campground.findById(id);
-    if (!campground.author.equals(req.user._id)) {
-        req.flash('error', "You don't have permission to do it.");
-        return res.redirect(`/campgrounds/${id}`)
-    }
     await Campground.findByIdAndDelete(id);
-    req.flash('success', 'Successfully Deleted campground!')
-    res.redirect('/campgrounds')
+    req.flash('success', 'Successfully deleted campground')
+    res.redirect('/campgrounds');
 })
 
 module.exports = router;
