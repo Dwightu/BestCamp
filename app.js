@@ -117,8 +117,9 @@ app.use((err, req, res, next) => {
     res.status(statusCode).render('error', { err })
 })
 
+const host = '0.0.0.0';
+const port = process.env.PORT || 3000;
 
-
-app.listen(8080, () => {
-    console.log('Serving on Port 8080');
-})
+app.listen(port, host, function () {
+    console.log("Server started.......");
+});
