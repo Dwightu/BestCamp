@@ -1,7 +1,7 @@
  YelpCamp :tent:
  =
  YelpCamp is a website where users can create and review campgrounds.
- ## Final Version HERE: https://my-app-fh423.ondigitalocean.app/
+ ## Final Version HERE: https://best-camp-canada.herokuapp.com/
  # Features
  Users can create, edit, and remove campgrounds
 Users can review campgrounds once, and edit or remove their review
