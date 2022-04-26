@@ -20,8 +20,8 @@ const MongoStore = require('connect-mongo');
 
 
 
-// const dbUrl = process.env.DB_URL;
-const dbUrl = 'mongodb://localhost:27017/yelp-camp';
+const dbUrl = process.env.DB_URL;
+// const dbUrl = 'mongodb://localhost:27017/yelp-camp';
 // const reviewRoutes = require('./routes/reviews');
 
 // 'mongodb://localhost:27017/yelp-camp'
@@ -94,6 +94,12 @@ app.use('/', userRoutes);
 app.use('/campgrounds', campgroundRoutes)
 app.use('/campgrounds/:id/reviews', reviewRoutes)
 
+//Define About
+
+
+app.get('/about', (req, res) => {
+    res.render('about')
+})
 
 //所有找不到路由的界面
 app.get('/', (req, res) => {
