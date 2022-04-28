@@ -11,7 +11,7 @@ Sort campgrounds by highest rating, most reviewed, lowest price, or highest pric
 
 
 ## Demo
-![demo](https://github.com/Dwightu/BestCamp/blob/master/public/photos/BestCamp.jpg)
+![demo](https://github.com/Dwightu/BestCamp/blob/master/public/photos/BestCamp.png)
 
 ## Front-end
 * BootStrap
