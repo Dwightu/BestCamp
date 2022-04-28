@@ -1,6 +1,6 @@
- YelpCamp :tent:
+ BestCamp :tent:
  =
- YelpCamp is a website where users can create and review campgrounds.
+ BestCamp is a website designed for Canada where users can create and review campgrounds.
  ## Final Version HERE: https://best-camp-canada.herokuapp.com/
  # Features
  Users can create, edit, and remove campgrounds
