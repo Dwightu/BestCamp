@@ -1,7 +1,7 @@
  BestCamp :tent:
  =
  BestCamp is a website designed for Canada where users can create and review campgrounds.
- ### Check HERE:  [https://best-camp-canada.herokuapp.com/](http://www.best-camp-canada.ca/)
+ ### Check HERE:  http://www.best-camp-canada.ca/
  
  # Features
  `Users should register for an account` and then they can post their comments on existed shared campgrounds, and users could also add their favourate campground's places and the location will be automatically added to the `cluster-map`.
